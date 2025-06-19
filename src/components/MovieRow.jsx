@@ -36,8 +36,7 @@ const MovieRow = ({ title, movies,onMovieClick }) => {
         {title}
       </h2>
 
-       
-       {/* scroll btns */}
+     
       <div className="relative group">
         <button
           onClick={() => scroll("left")}

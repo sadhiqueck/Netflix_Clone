@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { movieApi } from "../services/tmdbApi"; 
+import { movieApi } from "../services/tmdbApi";
 import Navbar from "../components/NavBar";
 import { Banner } from "../components/Banner";
 import MovieRow from "../components/MovieRow";
 import MovieModal from "../components/MovieModal";
 import { useNavigate } from "react-router-dom";
-
+import { useAuth } from "../auth/useAuth";
 
 const HomePage = () => {
   const [featuredMovie, setFeaturedMovie] = useState(null);
@@ -16,18 +16,24 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Modal state
   const [selectedMovie, setSelectedMovie] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const navigate= useNavigate()
+  const navigate = useNavigate();
+  const [user, setUser] = useState({});
 
+  const { user: authUser } = useAuth();
+
+  useEffect(() => {
+    if (authUser) {
+      setUser(authUser);
+    }
+  }, [authUser]);
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
         setLoading(true);
 
-        // Fetch all movie categories
         const [trending, popular, topRated, upcoming] = await Promise.all([
           movieApi.getTrending(),
           movieApi.getPopular(),
@@ -43,6 +49,7 @@ const HomePage = () => {
         if (trending.data.results.length > 0) {
           setFeaturedMovie(trending.data.results[0]);
         }
+        
       } catch (err) {
         console.error("Error fetching movies:", err);
         setError("Failed to load movies. Please try again later.");
@@ -64,15 +71,15 @@ const HomePage = () => {
     setIsModalOpen(false);
   };
 
-const handleWatchTrailer = (movieId, trailerKey) => {
-  setIsModalOpen(false);
-  navigate(`/watch/${movieId}/${trailerKey}`)
-};
+  const handleWatchTrailer = (movieId, trailerKey) => {
+    setIsModalOpen(false);
+    navigate(`/watch/${movieId}/${trailerKey}`);
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-netflix-dark">
-        <Navbar />
+      <div className="min-h-screen  bg-(--color-netflix-dark)">
+        <Navbar userData={user} />
         <div className="flex items-center justify-center h-screen">
           <div className="text-white text-xl">Loading...</div>
         </div>
@@ -82,8 +89,8 @@ const handleWatchTrailer = (movieId, trailerKey) => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-netflix-dark">
-        <Navbar />
+      <div className="min-h-screen bg-(--color-netflix-dark)">
+        <Navbar userData={user} />
         <div className="flex items-center justify-center h-screen">
           <div className="text-center">
             <div className="text-red-500 text-xl mb-4">{error}</div>
@@ -100,8 +107,8 @@ const handleWatchTrailer = (movieId, trailerKey) => {
   }
 
   return (
-    <div className="min-h-screen bg-netflix-dark">
-      <Navbar />
+    <div className="min-h-screen bg-(--color-netflix-dark)">
+      <Navbar userData={user} />
       <Banner
         movie={featuredMovie}
         onMoreInfo={() => handleMovieSelect(featuredMovie)}

@@ -1,5 +1,5 @@
-import  { useState } from "react";
-import { useAuth } from '../auth/useAuth';
+import { useEffect, useState } from "react";
+import { useAuth } from "../auth/useAuth";
 import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
@@ -7,40 +7,44 @@ const LoginPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const {login,register}=useAuth()
-  const navigate = useNavigate()
+  const { login, register, isAuthenticated } = useAuth();
 
+  const navigate = useNavigate();
 
-  const handleSubmit = async(e) =>{
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-     setLoading(true)
+    setError("");
+    setLoading(true);
 
     try {
-     let result;
-     if(isSignup){
-      result = await register(email,password,name);
-     }else{
-      result = await login(email,password)
-     }
+      let result;
+      if (isSignup) {
+        result = await register(email, password, name);
+      } else {
+        result = await login(email, password);
+      }
 
-     if(result.success){
-      navigate('/')
-     }else{
-      setError(result.error || 'Authentication failed');
-     }
-      
+      if (result.success) {
+        navigate("/");
+      } else {
+        setError(result.error || "Authentication failed");
+      }
     } catch (error) {
-        setError('Something went wrong. Please try again.',error)
-    }finally{
-      setLoading(false)
+      setError("Something went wrong. Please try again.", error);
+    } finally {
+      setLoading(false);
     }
-  }
-
+  };
 
   return (
     <div className="min-h-screen relative">
@@ -83,7 +87,7 @@ const LoginPage = () => {
                     placeholder="Full Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-4 bg-netflix-gray text-white rounded border-none outline-none focus:ring-2 focus:ring-white placeholder-gray-400"
+                    className="w-full px-4 py-4  bg-(--color-netflix-gray) text-white rounded border-none outline-none focus:ring-2 focus:ring-white placeholder-gray-400"
                     required={isSignup}
                   />
                 </div>
@@ -95,7 +99,7 @@ const LoginPage = () => {
                   placeholder="Email or mobile number"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-4 bg-netflix-gray text-white rounded border-none outline-none focus:ring-2 focus:ring-white placeholder-gray-400"
+                  className="w-full px-4 py-4 bg-(--color-netflix-gray) text-white rounded border-none outline-none focus:ring-2 focus:ring-white placeholder-gray-400"
                   required
                 />
               </div>
@@ -106,7 +110,7 @@ const LoginPage = () => {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-4 bg-netflix-gray text-white rounded border-none outline-none focus:ring-2 focus:ring-white placeholder-gray-400"
+                  className="w-full px-4 py-4 bg-(--color-netflix-gray) text-white rounded border-none outline-none focus:ring-2 focus:ring-white placeholder-gray-400"
                   required
                 />
               </div>
@@ -114,9 +118,9 @@ const LoginPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-netflix text-white py-4 rounded font-semibold hover:bg-red-700 transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-(--color-netflix) text-white py-4 rounded font-semibold hover:bg-red-700 transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Please wait...' : (isSignup ? 'Sign Up' : 'Sign In')}
+                {loading ? "Please wait..." : isSignup ? "Sign Up" : "Sign In"}
               </button>
 
               {!isSignup && (
@@ -145,7 +149,7 @@ const LoginPage = () => {
               <div className="text-gray-400 text-sm">
                 {isSignup ? (
                   <>
-                    Already have an account?{' '}
+                    Already have an account?{" "}
                     <button
                       type="button"
                       onClick={() => setIsSignup(false)}
@@ -156,7 +160,7 @@ const LoginPage = () => {
                   </>
                 ) : (
                   <>
-                    New to Netflix?{' '}
+                    New to Netflix?{" "}
                     <button
                       type="button"
                       onClick={() => setIsSignup(true)}
@@ -167,7 +171,6 @@ const LoginPage = () => {
                   </>
                 )}
               </div>
-
             </form>
           </div>
         </div>
